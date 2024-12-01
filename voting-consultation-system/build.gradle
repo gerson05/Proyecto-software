@@ -1,0 +1,79 @@
+//
+// Install the gradle Ice Builder plug-in from the plug-in portal
+//
+
+plugins {
+    id 'com.zeroc.gradle.ice-builder.slice' version '1.5.0' apply false
+}
+
+subprojects {
+
+    group 'co.edu.icesi.votaciones'
+    version '1.0-SNAPSHOT'
+
+    //
+    // Apply Java and Ice Builder plug-ins to all sub-projects
+    //
+    apply plugin: 'java'
+    apply plugin: 'com.zeroc.gradle.ice-builder.slice'
+
+    //
+    // Both Client and Server projects share the VotingSystem.ice Slice definitions
+    //
+    slice {
+        java {
+            files = [file("../VotingSystem.ice")]
+        }
+    }
+
+    //
+    // Use Ice JAR files from maven central repository
+    //
+    repositories {
+        mavenCentral()
+    }
+
+    //
+    // Both Client and Server depend only on Ice JAR
+    //
+    dependencies {
+        // ZeroC Ice dependencies
+        implementation 'com.zeroc:ice:3.7.5'
+
+        // Logging
+        implementation 'org.apache.logging.log4j:log4j-core:2.14.1'
+        implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
+
+        // Database connection
+        implementation 'org.postgresql:postgresql:42.2.23'
+        implementation 'com.zaxxer:HikariCP:4.0.3'
+
+        // Testing
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    //
+    // Create a JAR file with the appropriate Main-Class and Class-Path attributes
+    //
+    jar {
+        manifest {
+            attributes(
+                    "Main-Class": project.name.capitalize(),
+                    //"Class-Path": '/opt/Ice-3.7.6/lib/ice-3.7.6.jar'
+                    "Class-Path": configurations.runtimeClasspath.resolve().collect { it.toURI() }.join(' ')
+            )
+        }
+    }
+}
+
+// Tarea para generar código a partir de Slice
+tasks.register('generateSliceCode') {
+    doLast {
+        println "Generando código a partir de archivos Slice..."
+    }
+}

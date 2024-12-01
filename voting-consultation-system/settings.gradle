@@ -1,0 +1,4 @@
+rootProject.name = 'voting-consultation-system'
+include 'client'
+include 'server'
+
